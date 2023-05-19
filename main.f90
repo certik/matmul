@@ -22,7 +22,7 @@ program matmul_benchmark
 ! number and expect 0.333 for the peak.
 
 use linalg, only: matmul_2d
-use m, only: matmul1, matmul2, matmul3
+use m, only: matmul1, matmul2, matmul3, matmul4
 implicit none
 integer, parameter :: dp = kind(0.d0)
 integer, parameter :: sp = kind(0.0)
@@ -78,6 +78,14 @@ call matmul3(n, A, B, C)
 call cpu_time(t2)
 cycles = (t2-t1)*freq/real(n,dp)**3
 print "('matmul blocks 2:',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
+    cycles, 100*peak/cycles
+print *, "Error =", maxval(abs(C-C_ref))
+
+call cpu_time(t1)
+call matmul4(n, A, B, C)
+call cpu_time(t2)
+cycles = (t2-t1)*freq/real(n,dp)**3
+print "('matmul blocks 3:',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
     cycles, 100*peak/cycles
 print *, "Error =", maxval(abs(C-C_ref))
 
