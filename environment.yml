@@ -1,0 +1,9 @@
+name: matmul
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - numpy=1.24.2
+  #- gfortran=11.3.0
+  - cmake=3.25.2
+  - openblas=0.3.21

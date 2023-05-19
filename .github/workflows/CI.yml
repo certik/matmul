@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+
+jobs:
+
+  basic:
+    name: Linux/macOS (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["macos-latest", "ubuntu-latest"]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: environment.yml
+          extra-specs: |
+            sel(osx): gfortran=11.3.0
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          variant: sccache
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Build and run
+        shell: bash -l {0}
+        run: |
+            ci/build.sh
