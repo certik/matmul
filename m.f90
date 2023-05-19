@@ -6,6 +6,7 @@ contains
 
     subroutine matmul1(n, A, B, C)
     ! matmul using 3 loops
+    integer, intent(in) :: n
     real(sp), intent(in) :: A(n,n), B(n,n)
     real(sp), intent(out) :: C(n,n)
     integer :: i, j, k
@@ -22,6 +23,7 @@ contains
 
     subroutine matmul2(n, A, B, C)
     ! matmul using blocks
+    integer, intent(in) :: n
     real(sp), intent(in) :: A(n,n), B(n,n)
     real(sp), intent(out) :: C(n,n)
     integer, parameter :: M = 8 ! Block size
@@ -45,6 +47,7 @@ contains
 
     subroutine matmul3(n, A, B, C)
     ! matmul using blocks
+    integer, intent(in) :: n
     real(sp), intent(in) :: A(n,n), B(n,n)
     real(sp), intent(out) :: C(n,n)
     integer, parameter :: M = 64 ! Block size
@@ -71,6 +74,7 @@ contains
 
     subroutine matmul4(n, A, B, C)
     ! matmul using blocks
+    integer, intent(in) :: n
     real(sp), intent(in) :: A(n,n), B(n,n)
     real(sp), intent(out) :: C(n,n)
     ! The block is (V, M1) in A; (M1, M2) in B; (V, M2) in C
