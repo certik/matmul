@@ -69,4 +69,36 @@ contains
     end do
     end subroutine
 
+    subroutine matmul4(n, A, B, C)
+    ! matmul using blocks
+    real(sp), intent(in) :: A(n,n), B(n,n)
+    real(sp), intent(out) :: C(n,n)
+    ! The block is (V, M1) in A; (M1, M2) in B; (V, M2) in C
+    ! Vector register size (rows in the block)
+    integer, parameter :: V = 64
+    ! Number of columns in the block in A
+    integer, parameter :: M1 = 128
+    ! Number of columns in the block in B
+    integer, parameter :: M2 = 128
+    real(sp) :: BA(V,M1), BB(M1,M2), BC(V,M2)
+    integer :: j, k, ii, jj, kk
+    ! C_ij = A_i^k B_kj
+    C = 0
+    do jj = 1, n, M2
+    do kk = 1, n, M1
+    do ii = 1, n, V
+        BA(:,:) = A(ii:ii+V-1, kk:kk+M1-1)
+        BB(:,:) = B(kk:kk+M1-1, jj:jj+M2-1)
+        BC(:,:) = 0
+        do j = 1, M2
+        do k = 1, M1
+            BC(:,j) = BC(:,j) + BA(:,k)*BB(k,j)
+        end do
+        end do
+        C(ii:ii+V-1,jj:jj+M2-1) = C(ii:ii+V-1,jj:jj+M2-1) + BC(:,:)
+    end do
+    end do
+    end do
+    end subroutine
+
 end module
