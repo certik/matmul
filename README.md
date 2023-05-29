@@ -17,15 +17,31 @@ Single precison (f32) matmul
 
 peak = 0.0625 clock cycles
 
-    n    OpenBlas
-    512  0.0768
-    1024 0.0672
-    2048 0.0640
-    4096 0.0632
-    8192 0.0631
+    n    OpenBlas  Percent Peak
+    512  0.0768       81.4%
+    1024 0.0672       93.0%
+    2048 0.0640       97.7%
+    4096 0.0632       98.9%
+    8192 0.0631       99.0%
 
 To convert these clock cycles to seconds, multiply by n^3 and divide by 3.2GHz.
 For example the n=8192 case gives 10.84s:
 
     >>> n = 8192; 0.0631*n**3 / 3.2e9
     10.840497455104
+
+## Rectangle
+
+peak = 0.0625 cycles
+
+ n1    n2   n3  OpenBlas  Percent Peak
+32768  240  235  0.0768      81.4%
+32768  480  470  0.0684      91.4%
+32768  960  940  0.0658      95.0%
+32768 2400 2350  0.0647      96.6%
+
+To convert these clock cycles to seconds, multiply by `n1*n2*n3` and divide by
+3.2GHz. For example the last case gives 3.74s:
+
+    >>> n1 = 32768; n2 = 2400; n3 = 2350; 0.0647 * n1*n2*n3 / 3.2e9
+    3.7366579199999994
