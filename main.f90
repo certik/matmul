@@ -38,13 +38,13 @@ call random_number(A)
 call random_number(B)
 
 peak = 0.125/2 ! cycles per array element, dominated by fma, single precision
-print '("Benchmarking matmul; n = ",i0," peak =", f6.3, " cycles")', n, peak
+print '("Benchmarking matmul; n = ",i0," peak =", f7.4, " cycles")', n, peak
 
 call cpu_time(t1)
 C = matmul(A, B)
 call cpu_time(t2)
 cycles = (t2-t1)*freq/real(n,dp)**3
-print "('Fortran matmul: ',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
+print "('Fortran matmul: ',f7.3,' s =',f7.4,' cycles (',f4.1,'%)')", t2-t1, &
     cycles, 100*peak/cycles
 C_ref = C
 print *, "Error =", maxval(abs(C-C_ref))
@@ -53,7 +53,7 @@ call cpu_time(t1)
 call matmul_2d(A, B, C)
 call cpu_time(t2)
 cycles = (t2-t1)*freq/real(n,dp)**3
-print "('OpenBLAS matmul: ',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
+print "('OpenBLAS matmul: ',f7.3,' s =',f7.4,' cycles (',f4.1,'%)')", t2-t1, &
     cycles, 100*peak/cycles
 print *, "Error =", maxval(abs(C-C_ref))
 
@@ -61,7 +61,7 @@ call cpu_time(t1)
 call matmul1(n, A, B, C)
 call cpu_time(t2)
 cycles = (t2-t1)*freq/real(n,dp)**3
-print "('matmul 3 loops: ',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
+print "('matmul 3 loops: ',f7.3,' s =',f7.4,' cycles (',f4.1,'%)')", t2-t1, &
     cycles, 100*peak/cycles
 print *, "Error =", maxval(abs(C-C_ref))
 
@@ -69,7 +69,7 @@ call cpu_time(t1)
 call matmul2(n, A, B, C)
 call cpu_time(t2)
 cycles = (t2-t1)*freq/real(n,dp)**3
-print "('matmul blocks 1:',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
+print "('matmul blocks 1:',f7.3,' s =',f7.4,' cycles (',f4.1,'%)')", t2-t1, &
     cycles, 100*peak/cycles
 print *, "Error =", maxval(abs(C-C_ref))
 
@@ -77,7 +77,7 @@ call cpu_time(t1)
 call matmul3(n, A, B, C)
 call cpu_time(t2)
 cycles = (t2-t1)*freq/real(n,dp)**3
-print "('matmul blocks 2:',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
+print "('matmul blocks 2:',f7.3,' s =',f7.4,' cycles (',f4.1,'%)')", t2-t1, &
     cycles, 100*peak/cycles
 print *, "Error =", maxval(abs(C-C_ref))
 
@@ -85,7 +85,7 @@ call cpu_time(t1)
 call matmul4(n, A, B, C)
 call cpu_time(t2)
 cycles = (t2-t1)*freq/real(n,dp)**3
-print "('matmul blocks 3:',f7.3,' s =',f6.3,' cycles (',f4.1,'%)')", t2-t1, &
+print "('matmul blocks 3:',f7.3,' s =',f7.4,' cycles (',f4.1,'%)')", t2-t1, &
     cycles, 100*peak/cycles
 print *, "Error =", maxval(abs(C-C_ref))
 
