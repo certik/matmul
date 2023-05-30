@@ -39,9 +39,11 @@ peak = 0.0625 cycles
 32768  480  470  0.0684      91.4%
 32768  960  940  0.0658      95.0%
 32768 2400 2350  0.0647      96.6%
+32768 4800 4700  0.0636      98.3%
+32768 9600 9400  0.0643      97.2%
 
 To convert these clock cycles to seconds, multiply by `n1*n2*n3` and divide by
-3.2GHz. For example the last case gives 3.74s:
+3.2GHz. For example the following case gives 3.74s:
 
     >>> n1 = 32768; n2 = 2400; n3 = 2350; 0.0647 * n1*n2*n3 / 3.2e9
     3.7366579199999994
