@@ -3,13 +3,30 @@
 This benchmarks (n,n) matrix multiplication using NumPy (which uses OpenBLAS),
 on single core:
 
-   n    Time    Cycles    Percent Peak
-  512   0.00s   0.07360      84.92%
- 1024   0.02s   0.06942      90.04%
- 2048   0.18s   0.06538      95.60%
- 4096   1.37s   0.06397      97.70%
- 8192  10.90s   0.06345      98.50%
-16384  86.88s   0.06321      98.87%
+   n    Time    Cycles    Percent Peak   Size in MB
+  512   0.00s   0.07360      84.92%           1
+ 1024   0.02s   0.06942      90.04%           4
+ 2048   0.18s   0.06538      95.60%          16
+ 4096   1.37s   0.06397      97.70%          64
+ 8192  10.90s   0.06345      98.50%         256
+16384  86.88s   0.06321      98.87%        1024
+
+Peak            0.0625      100.00%
+
+# f64 OpenBLAS (via NumPy) Benchmark
+
+This benchmarks (n,n) matrix multiplication using NumPy (which uses OpenBLAS),
+on single core:
+
+   n     Time    Cycles    Percent Peak   Size in MB
+  512    0.01s   0.15275      80.04%           2
+ 1024    0.05s   0.13771      90.77%           8
+ 2048    0.35s   0.13027      95.96%          32
+ 4096    2.75s   0.12845      97.31%         128
+ 8192   21.85s   0.12758      97.98%         512
+16384  174.82s   0.12720      98.27%        2048
+
+Peak             0.125       100.00%
 
 
 # MatMul Benchmark
