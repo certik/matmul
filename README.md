@@ -1,3 +1,17 @@
+# f32 OpenBLAS (via NumPy) Benchmark
+
+This benchmarks (n,n) matrix multiplication using NumPy (which uses OpenBLAS),
+on single core:
+
+   n    Time    Cycles    Percent Peak
+  512   0.00s   0.07360      84.92%
+ 1024   0.02s   0.06942      90.04%
+ 2048   0.18s   0.06538      95.60%
+ 4096   1.37s   0.06397      97.70%
+ 8192  10.90s   0.06345      98.50%
+16384  86.88s   0.06321      98.87%
+
+
 # MatMul Benchmark
 
 Run:
