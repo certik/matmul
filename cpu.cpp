@@ -275,14 +275,14 @@ void matmul6(const float *_a, const float *_b, float *_c, int n) {
 
 int main() {
     //int n = 1920;
-    int n = 512;
-    int iter = 800;
+    int n = 15*128;
+    int iter = 10;
     float *a = (float*) malloc(n*n*sizeof(float));
     float *b = (float*) malloc(n*n*sizeof(float));
     float *c = (float*) malloc(n*n*sizeof(float));
     auto t1 = std::chrono::high_resolution_clock::now();
     for (int i=0; i < iter; i++) {
-        matmul5(a, b, c, n);
+        matmul6(a, b, c, n);
     }
     auto t2 = std::chrono::high_resolution_clock::now();
     double t = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() / 1000.0;

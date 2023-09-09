@@ -78,6 +78,22 @@ Peak            0.0625      100.00%
 
 Peak            0.0625      100.00%
 
+# f32 C matmul6
+
+   n    Time    Cycles    Percent Peak
+  120   0.00s  0.137537     45.44%
+  240   0.00s  0.0680556    91.84%
+  480   0.00s  0.0680556    91.84%
+  960   0.08s  0.0643446    97.13%
+ 1920   0.15s  0.0678168    92.16%
+
+Peak            0.0625      100.00%
+
+These are probably incorrect (unsupported) sizes:
+
+  512   0.00s  0.109166     57.25%
+ 1024   0.03s  0.0828505    75.44%
+
 # MatMul Benchmark
 
 Run:
