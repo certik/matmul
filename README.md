@@ -91,6 +91,20 @@ Peak            0.0625      100.00%
 
 Peak            0.0625      100.00%
 
+Note: This gets to 81.62% for 3840:
+
+    s3 = 64*4
+    s2 = 120*2
+    s1 = 240*2*2*2
+
+This gets 78.32% for 7680:
+
+    s3 = 64*8
+    s2 = 120*2
+    s1 = 240
+
+
+
 These are probably incorrect (unsupported) sizes:
 
   512   0.00s  0.109166     57.25%
