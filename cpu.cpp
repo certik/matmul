@@ -63,6 +63,60 @@ void matmul3(const float *_a, const float *_b, float *c, int n) {
     std::free(b);
 }
 
+// update 6x16 submatrix C[x:x+6][y:y+16]
+// using A[x:x+6][l:r] and B[l:r][y:y+16]
+void kernel(float *a, vec *b, vec *c, int x, int y, int l, int r, int n) {
+    vec t[6][2]{}; // will be zero-filled and stored in ymm registers
+
+    for (int k = l; k < r; k++) {
+        for (int i = 0; i < 6; i++) {
+            // broadcast a[x + i][k] into a register
+            vec alpha = vec{} + a[(x + i) * n + k]; // converts to a broadcast
+            // multiply b[k][y:y+16] by it and update t[i][0] and t[i][1]
+            for (int j = 0; j < 2; j++)
+                t[i][j] += alpha * b[(k * n + y) / 8 + j]; // converts to an fma
+        }
+    }
+
+    // write the results back to C
+    for (int i = 0; i < 6; i++)
+        for (int j = 0; j < 2; j++)
+            c[((x + i) * n + y) / 8 + j] += t[i][j];
+}
+
+// a helper function that allocates n vectors and initializes them with zeros
+float* alloc4(int n) {
+    float* ptr = (float*) std::aligned_alloc(32, 32 * n);
+    memset(ptr, 0, 32 * n);
+    return ptr;
+}
+
+void matmul4(const float *_a, const float *_b, float *_c, int n) {
+    // to simplify the implementation, we pad the height and width
+    // so that they are divisible by 6 and 16 respectively
+    int nx = (n + 5) / 6 * 6;
+    int ny = (n + 15) / 16 * 16;
+
+    float *a = alloc4(nx * ny);
+    float *b = alloc4(nx * ny);
+    float *c = alloc4(nx * ny);
+
+    for (int i = 0; i < n; i++) {
+        memcpy(&a[i * ny], &_a[i * n], 4 * n);
+        memcpy(&b[i * ny], &_b[i * n], 4 * n); // we don't need to transpose b this time
+    }
+
+    for (int x = 0; x < nx; x += 6)
+        for (int y = 0; y < ny; y += 16)
+            kernel(a, (vec*) b, (vec*) c, x, y, 0, n, ny);
+
+    for (int i = 0; i < n; i++)
+        memcpy(&_c[i * n], &c[i * ny], 4 * n);
+
+    std::free(a);
+    std::free(b);
+    std::free(c);
+}
 
 int main() {
     //int n = 1920;
@@ -71,7 +125,7 @@ int main() {
     float *b = (float*) malloc(n*n*sizeof(float));
     float *c = (float*) malloc(n*n*sizeof(float));
     auto t1 = std::chrono::high_resolution_clock::now();
-    matmul3(a, b, c, n);
+    matmul4(a, b, c, n);
     auto t2 = std::chrono::high_resolution_clock::now();
     double t = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() / 1000.0;
     double GHz = 1e9;
