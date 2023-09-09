@@ -118,6 +118,44 @@ void matmul4(const float *_a, const float *_b, float *_c, int n) {
     std::free(c);
 }
 
+void matmul5(const float *_a, const float *_b, float *_c, int n) {
+    // to simplify the implementation, we pad the height and width
+    // so that they are divisible by 6 and 16 respectively
+    int nx = (n + 5) / 6 * 6;
+    int ny = (n + 15) / 16 * 16;
+
+    float *a = alloc4(nx * ny);
+    float *b = alloc4(nx * ny);
+    float *c = alloc4(nx * ny);
+
+    for (int i = 0; i < n; i++) {
+        memcpy(&a[i * ny], &_a[i * n], 4 * n);
+        memcpy(&b[i * ny], &_b[i * n], 4 * n); // we don't need to transpose b this time
+    }
+
+    const int s3 = 64;  // how many columns of B to select
+    const int s2 = 120; // how many rows of A to select
+    const int s1 = 240; // how many rows of B to select
+
+    for (int i3 = 0; i3 < ny; i3 += s3)
+        // now we are working with b[:][i3:i3+s3]
+        for (int i2 = 0; i2 < nx; i2 += s2)
+            // now we are working with a[i2:i2+s2][:]
+            for (int i1 = 0; i1 < ny; i1 += s1)
+                // now we are working with b[i1:i1+s1][i3:i3+s3]
+                // and we need to update c[i2:i2+s2][i3:i3+s3] with [l:r] = [i1:i1+s1]
+                for (int x = i2; x < std::min(i2 + s2, nx); x += 6)
+                    for (int y = i3; y < std::min(i3 + s3, ny); y += 16)
+                        kernel(a, (vec*) b, (vec*) c, x, y, i1, std::min(i1 + s1, n), ny);
+
+    for (int i = 0; i < n; i++)
+        memcpy(&_c[i * n], &c[i * ny], 4 * n);
+
+    std::free(a);
+    std::free(b);
+    std::free(c);
+}
+
 int main() {
     //int n = 1920;
     int n = 1024;
