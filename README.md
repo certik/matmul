@@ -28,6 +28,14 @@ on single core:
 
 Peak             0.125       100.00%
 
+# f32 C matmul1
+
+   n    Time    Cycles    Percent Peak
+  512   0.09s   2.12193       2.94%
+ 1024   0.88s   2.62856       2.38%
+ 2048  23.34s   8.69408       0.72%
+
+Peak            0.0625      100.00%
 
 # MatMul Benchmark
 

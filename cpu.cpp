@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cmath>
 
-void matmul(const float *a, const float *b, float *c, int n) {
+void matmul1(const float *a, const float *b, float *c, int n) {
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             for (int k = 0; k < n; k++)
@@ -15,7 +15,7 @@ int main() {
     float *b = (float*) malloc(n*n*sizeof(float));
     float *c = (float*) malloc(n*n*sizeof(float));
     auto t1 = std::chrono::high_resolution_clock::now();
-    matmul(a, b, c, n);
+    matmul1(a, b, c, n);
     auto t2 = std::chrono::high_resolution_clock::now();
     double t = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() / 1000.0;
     double GHz = 1e9;
