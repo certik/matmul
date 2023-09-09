@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 void matmul(const float *a, const float *b, float *c, int n) {
     for (int i = 0; i < n; i++)
@@ -8,6 +9,7 @@ void matmul(const float *a, const float *b, float *c, int n) {
 }
 
 int main() {
+    //int n = 1920;
     int n = 1024;
     float *a = (float*) malloc(n*n*sizeof(float));
     float *b = (float*) malloc(n*n*sizeof(float));
@@ -19,7 +21,7 @@ int main() {
     double GHz = 1e9;
     double fma_clock = 0.0625;
     double freq = 3.2*GHz;
-    double measured = t * freq / (n*n*n);
+    double measured = t * freq / (std::pow((double)n, 3));
     double percent_peak = fma_clock / measured * 100;
     std::cout << "Size (n x n): n = " << n << std::endl;
     std::cout << "Size MB: " << 4.*n*n/(1024*1024) << std::endl;
