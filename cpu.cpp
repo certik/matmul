@@ -121,13 +121,17 @@ void matmul4(const float *_a, const float *_b, float *_c, int n) {
 int main() {
     //int n = 1920;
     int n = 1024;
+    int iter = 100;
     float *a = (float*) malloc(n*n*sizeof(float));
     float *b = (float*) malloc(n*n*sizeof(float));
     float *c = (float*) malloc(n*n*sizeof(float));
     auto t1 = std::chrono::high_resolution_clock::now();
-    matmul4(a, b, c, n);
+    for (int i=0; i < iter; i++) {
+        matmul4(a, b, c, n);
+    }
     auto t2 = std::chrono::high_resolution_clock::now();
     double t = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() / 1000.0;
+    t = t / iter;
     double GHz = 1e9;
     double fma_clock = 0.0625;
     double freq = 3.2*GHz;
