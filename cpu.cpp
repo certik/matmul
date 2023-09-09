@@ -156,6 +156,123 @@ void matmul5(const float *_a, const float *_b, float *_c, int n) {
     std::free(c);
 }
 
+
+
+const int B = 8; // number of elements in a vector
+typedef float vector __attribute__ (( vector_size(4 * B) ));
+
+float* alloc6(int n) {
+    float* ptr = (float*) std::aligned_alloc(64, 4 * n);
+    memset(ptr, 0, 4 * n);
+    return ptr;
+}
+
+// c: 6 x 16
+// a: 6 x k
+// b: k x 16
+// c[x:x+6][y:y+16] += a[x:x+6][l:r] * b[l:r][y:y+16]
+
+void kernel6(float *a, vector *b, vector *c, int x, int y, int l, int r, int n) {
+    vector t00, t01,
+           t10, t11,
+           t20, t21,
+           t30, t31,
+           t40, t41,
+           t50, t51;
+
+    t00 = c[((x + 0) * n + y) / 8 + 0];
+    t01 = c[((x + 0) * n + y) / 8 + 1];
+
+    t10 = c[((x + 1) * n + y) / 8 + 0];
+    t11 = c[((x + 1) * n + y) / 8 + 1];
+
+    t20 = c[((x + 2) * n + y) / 8 + 0];
+    t21 = c[((x + 2) * n + y) / 8 + 1];
+
+    t30 = c[((x + 3) * n + y) / 8 + 0];
+    t31 = c[((x + 3) * n + y) / 8 + 1];
+
+    t40 = c[((x + 4) * n + y) / 8 + 0];
+    t41 = c[((x + 4) * n + y) / 8 + 1];
+
+    t50 = c[((x + 5) * n + y) / 8 + 0];
+    t51 = c[((x + 5) * n + y) / 8 + 1];
+
+    for (int k = l; k < r; k++) {
+        vector a0 = vector{} + a[(x + 0) * n + k];
+        t00 += a0 * b[(k * n + y) / 8];
+        t01 += a0 * b[(k * n + y) / 8 + 1];
+
+        vector a1 = vector{} + a[(x + 1) * n + k];
+        t10 += a1 * b[(k * n + y) / 8];
+        t11 += a1 * b[(k * n + y) / 8 + 1];
+
+        vector a2 = vector{} + a[(x + 2) * n + k];
+        t20 += a2 * b[(k * n + y) / 8];
+        t21 += a2 * b[(k * n + y) / 8 + 1];
+
+        vector a3 = vector{} + a[(x + 3) * n + k];
+        t30 += a3 * b[(k * n + y) / 8];
+        t31 += a3 * b[(k * n + y) / 8 + 1];
+
+        vector a4 = vector{} + a[(x + 4) * n + k];
+        t40 += a4 * b[(k * n + y) / 8];
+        t41 += a4 * b[(k * n + y) / 8 + 1];
+
+        vector a5 = vector{} + a[(x + 5) * n + k];
+        t50 += a5 * b[(k * n + y) / 8];
+        t51 += a5 * b[(k * n + y) / 8 + 1];
+    }
+
+    c[((x + 0) * n + y) / 8 + 0] = t00;
+    c[((x + 0) * n + y) / 8 + 1] = t01;
+
+    c[((x + 1) * n + y) / 8 + 0] = t10;
+    c[((x + 1) * n + y) / 8 + 1] = t11;
+
+    c[((x + 2) * n + y) / 8 + 0] = t20;
+    c[((x + 2) * n + y) / 8 + 1] = t21;
+
+    c[((x + 3) * n + y) / 8 + 0] = t30;
+    c[((x + 3) * n + y) / 8 + 1] = t31;
+
+    c[((x + 4) * n + y) / 8 + 0] = t40;
+    c[((x + 4) * n + y) / 8 + 1] = t41;
+
+    c[((x + 5) * n + y) / 8 + 0] = t50;
+    c[((x + 5) * n + y) / 8 + 1] = t51;
+}
+
+
+void matmul6(const float *_a, const float *_b, float *_c, int n) {
+    int nx = (n + 5) / 6 * 6;
+    int ny = (n + 15) / 16 * 16;
+
+    const int MAXN = 1920 * 1920; // ~15MB each
+    alignas(64) static float a[MAXN], b[MAXN], c[MAXN];
+
+    const int s3 = 64;
+    const int s2 = 120;
+    const int s1 = 240;
+
+    for (int i3 = 0; i3 < ny; i3 += s3)
+        // now we are working with b[:][i3:i3+s3]
+        for (int i2 = 0; i2 < nx; i2 += s2)
+            // now we are working with a[i2:i2+s2][:]
+            for (int i1 = 0; i1 < ny; i1 += s1)
+                // now we are working with b[i1:i1+s1][i3:i3+s3]
+                // this equates to updating c[i2:i2+s2][i3:i3+s3]
+                // with [l:r] = [i1:i1+s1]
+                for (int x = i2; x < i2 + s2; x += 6)
+                    for (int y = i3; y < i3 + s3; y += 16)
+                        kernel6(a, (vector*) b, (vector*) c, x, y, i1, i1 + s1, ny);
+
+    //for (int i = 0; i < n; i++)
+    //    memcpy(&_c[i * n], &c[i * ny], 4 * n);
+}
+
+
+
 int main() {
     //int n = 1920;
     int n = 512;
