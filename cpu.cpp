@@ -248,7 +248,7 @@ void matmul6(const float *_a, const float *_b, float *_c, int n) {
     int nx = (n + 5) / 6 * 6;
     int ny = (n + 15) / 16 * 16;
 
-    const int MAXN = 1920 * 1920; // ~15MB each
+    const int MAXN = 1920 * 1920 *4*4; // ~15MB each
     alignas(64) static float a[MAXN], b[MAXN], c[MAXN];
 
     const int s3 = 64;
@@ -275,8 +275,8 @@ void matmul6(const float *_a, const float *_b, float *_c, int n) {
 
 int main() {
     //int n = 1920;
-    int n = 15*128;
-    int iter = 10;
+    int n = 15*128*2*2;
+    int iter = 1;
     float *a = (float*) malloc(n*n*sizeof(float));
     float *b = (float*) malloc(n*n*sizeof(float));
     float *c = (float*) malloc(n*n*sizeof(float));
