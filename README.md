@@ -1,5 +1,7 @@
 # f32 OpenBLAS (via NumPy) Benchmark
 
+Run this via `./run.sh`.
+
 This benchmarks (n,n) matrix multiplication using NumPy (which uses OpenBLAS),
 on single core:
 
@@ -29,6 +31,9 @@ on single core:
 Peak             0.125       100.00%
 
 # f32 C matmul1
+
+Run this via: `clang++ -std=c++17 -O3 -ffast-math -funroll-loops cpu.cpp && ./a.out`:
+
 
    n    Time    Cycles    Percent Peak
   512   0.09s   2.12193       2.94%
