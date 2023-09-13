@@ -1,5 +1,8 @@
-#include <iostream>
+#include <chrono>
 #include <cmath>
+#include <cstddef>
+#include <cstring>
+#include <iostream>
 
 void matmul1(const float *a, const float *b, float *c, int n) {
     for (int i = 0; i < n; i++)
@@ -172,7 +175,7 @@ float* alloc6(int n) {
 // b: k x 16
 // c[x:x+6][y:y+16] += a[x:x+6][l:r] * b[l:r][y:y+16]
 
-void kernel6(float *a, vector *b, vector *c, int x, int y, int l, int r, int n) {
+void kernel6(const float *a, const vector *b, vector *c, int x, int y, int l, int r, int n) {
     vector t00, t01,
            t10, t11,
            t20, t21,
@@ -243,14 +246,21 @@ void kernel6(float *a, vector *b, vector *c, int x, int y, int l, int r, int n) 
     c[((x + 5) * n + y) / 8 + 1] = t51;
 }
 
-
+extern "C" {
 void matmul6(const float *_a, const float *_b, float *_c, int n) {
     int nx = (n + 5) / 6 * 6;
     int ny = (n + 15) / 16 * 16;
 
-    const int MAXN = 1920 * 1920 *4*4; // ~15MB each
+    constexpr int MAXN = 1920 * 1920 *4*4; // ~15MB each
     alignas(64) static float a[MAXN], b[MAXN], c[MAXN];
-
+    ptrdiff_t n4 = n * ptrdiff_t(sizeof(float));
+    for (ptrdiff_t i = 0; i < n; i++)
+        memcpy(&a[i * nx], &_a[i * n], n4);
+    for (ptrdiff_t i = 0; i < n; i++)
+        memcpy(&b[i * ny], &_b[i * n], n4);
+    // for (ptrdiff_t i = 0; i < n; i++) 
+        // memcpy(&c[i * ny], &_c[i * n], n4);
+    std::memset(c, 0, n4 * ny);
     const int s3 = 64;
     const int s2 = 120;
     const int s1 = 240;
@@ -267,10 +277,10 @@ void matmul6(const float *_a, const float *_b, float *_c, int n) {
                     for (int y = i3; y < i3 + s3; y += 16)
                         kernel6(a, (vector*) b, (vector*) c, x, y, i1, i1 + s1, ny);
 
-    //for (int i = 0; i < n; i++)
-    //    memcpy(&_c[i * n], &c[i * ny], 4 * n);
+    for (ptrdiff_t i = 0; i < n; i++)
+       memcpy(&_c[i * n], &c[i * ny], n4);
 }
-
+}
 
 
 int main() {
@@ -279,7 +289,11 @@ int main() {
     int iter = 1;
     float *a = (float*) malloc(n*n*sizeof(float));
     float *b = (float*) malloc(n*n*sizeof(float));
-    float *c = (float*) malloc(n*n*sizeof(float));
+    float *c = (float *)malloc(n * n * sizeof(float));
+    for (int i=0; i < n*n; i++) {
+        a[i] = 0.125F;
+        b[i] = 0.125F;
+    }
     auto t1 = std::chrono::high_resolution_clock::now();
     for (int i=0; i < iter; i++) {
         matmul6(a, b, c, n);
