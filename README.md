@@ -1,3 +1,120 @@
+# f32 OpenBLAS (via NumPy) Benchmark
+
+Run this via `./run.sh`.
+
+This benchmarks (n,n) matrix multiplication using NumPy (which uses OpenBLAS),
+on single core:
+
+   n    Time    Cycles    Percent Peak   Size in MB
+  512   0.00s   0.07360      84.92%           1
+ 1024   0.02s   0.06942      90.04%           4
+ 2048   0.18s   0.06538      95.60%          16
+ 4096   1.37s   0.06397      97.70%          64
+ 8192  10.90s   0.06345      98.50%         256
+16384  86.88s   0.06321      98.87%        1024
+
+Peak            0.0625      100.00%
+
+# f64 OpenBLAS (via NumPy) Benchmark
+
+This benchmarks (n,n) matrix multiplication using NumPy (which uses OpenBLAS),
+on single core:
+
+   n     Time    Cycles    Percent Peak   Size in MB
+  512    0.01s   0.15275      80.04%           2
+ 1024    0.05s   0.13771      90.77%           8
+ 2048    0.35s   0.13027      95.96%          32
+ 4096    2.75s   0.12845      97.31%         128
+ 8192   21.85s   0.12758      97.98%         512
+16384  174.82s   0.12720      98.27%        2048
+
+Peak             0.125       100.00%
+
+# f32 C matmul1
+
+Run this via: `clang++ -std=c++17 -O3 -ffast-math -funroll-loops cpu.cpp && ./a.out`:
+
+
+   n    Time    Cycles    Percent Peak
+  512   0.09s   2.12193       2.94%
+ 1024   0.88s   2.62856       2.38%
+ 2048  23.34s   8.69408       0.72%
+
+Peak            0.0625      100.00%
+
+# f32 C matmul2
+
+   n    Time    Cycles    Percent Peak
+  512   0.01s   0.238419     26.21%
+ 1024   0.08s   0.244379     25.58%
+ 2048   0.69s   0.258535     24.17%
+ 4096   5.35s   0.249129     25.09%
+ 8192  42.85s   0.249431     25.06%
+
+Peak            0.0625      100.00%
+
+# f32 C matmul3
+
+   n    Time    Cycles    Percent Peak
+  512   0.01s   0.309944     20.17%
+ 1024   0.12s   0.342727     18.24%
+ 2048   1.14s   0.426173     14.67%
+ 4096   9.98s   0.46487      13.44%
+
+Peak            0.0625      100.00%
+
+# f32 C matmul4
+
+   n    Time    Cycles    Percent Peak
+  512   0.0031s 0.0750542    83.27%
+ 1024   0.03s   0.0792742    78.84%
+ 2048   0.78s   0.29169      21.43%
+ 4096  10.732s  0.499748     12.51%
+
+Peak            0.0625      100.00%
+
+# f32 C matmul5
+
+   n    Time    Cycles    Percent Peak
+  512   0.00s   0.0774562    80.69%
+ 1024   0.03s   0.0803173    77.82%
+ 2048   0.23s   0.0870973    71.76%
+ 4096   2.17s   0.100909     61.94%
+
+Peak            0.0625      100.00%
+
+# f32 C matmul6
+
+   n    Time    Cycles    Percent Peak
+  120   0.00s  0.137537     45.44%
+  240   0.00s  0.0680556    91.84%
+  480   0.00s  0.0680556    91.84%
+  960   0.08s  0.0643446    97.13%
+ 1920   0.15s  0.0678168    92.16%
+ 3840   1.44s  0.0813802    76.80%
+ 7680  12.26s  0.086636     72.14%
+
+Peak            0.0625      100.00%
+
+Note: This gets to 81.62% for 3840:
+
+    s3 = 64*4
+    s2 = 120*2
+    s1 = 240*2*2*2
+
+This gets 78.32% for 7680:
+
+    s3 = 64*8
+    s2 = 120*2
+    s1 = 240
+
+
+
+These are probably incorrect (unsupported) sizes:
+
+  512   0.00s  0.109166     57.25%
+ 1024   0.03s  0.0828505    75.44%
+
 # MatMul Benchmark
 
 Run:
@@ -17,15 +134,33 @@ Single precison (f32) matmul
 
 peak = 0.0625 clock cycles
 
-    n    OpenBlas
-    512  0.0768
-    1024 0.0672
-    2048 0.0640
-    4096 0.0632
-    8192 0.0631
+    n    OpenBlas  Percent Peak
+    512  0.0768       81.4%
+    1024 0.0672       93.0%
+    2048 0.0640       97.7%
+    4096 0.0632       98.9%
+    8192 0.0631       99.0%
 
 To convert these clock cycles to seconds, multiply by n^3 and divide by 3.2GHz.
 For example the n=8192 case gives 10.84s:
 
     >>> n = 8192; 0.0631*n**3 / 3.2e9
     10.840497455104
+
+## Rectangle
+
+peak = 0.0625 cycles
+
+ n1    n2   n3  OpenBlas  Percent Peak
+32768  240  235  0.0768      81.4%
+32768  480  470  0.0684      91.4%
+32768  960  940  0.0658      95.0%
+32768 2400 2350  0.0647      96.6%
+32768 4800 4700  0.0636      98.3%
+32768 9600 9400  0.0643      97.2%
+
+To convert these clock cycles to seconds, multiply by `n1*n2*n3` and divide by
+3.2GHz. For example the following case gives 3.74s:
+
+    >>> n1 = 32768; n2 = 2400; n3 = 2350; 0.0647 * n1*n2*n3 / 3.2e9
+    3.7366579199999994
